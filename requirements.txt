@@ -1,0 +1,17 @@
+fastapi
+uvicorn[standard]
+openai
+edge-tts
+httpx
+beautifulsoup4
+duckduckgo-search
+python-dotenv
+pynput
+websockets
+psutil
+mss
+# Gmail plugin
+google-auth
+google-auth-oauthlib
+google-auth-httplib2
+google-api-python-client

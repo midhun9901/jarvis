@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>FAU Mail Agent</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <main class="popup">
+      <h1>FAU Mail Agent</h1>
+      <p class="subtitle">Run one mail workflow with one command.</p>
+
+      <label class="label" for="command">Command</label>
+      <textarea id="command" rows="4" placeholder="check my mails"></textarea>
+
+      <div class="actions">
+        <button id="run">Run</button>
+        <button id="fill-check" class="secondary">Check My Mails</button>
+      </div>
+
+      <pre id="result" class="result">Ready.</pre>
+
+      <div class="footer">
+        <a href="options.html" target="_blank">Credentials</a>
+      </div>
+    </main>
+    <script src="popup.js"></script>
+  </body>
+</html>

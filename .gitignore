@@ -1,0 +1,27 @@
+# Secrets & credentials — never commit
+config/.env
+config/credentials.json
+config/token.json
+*.key
+*.pem
+
+# Personal data / runtime state
+data/
+logs/
+runtime/
+wallpapers/
+
+# Python
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+
+# Editor/OS
+.claude/
+.vscode/
+.idea/
+.DS_Store

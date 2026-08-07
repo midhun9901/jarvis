@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>FAU Mail Agent Settings</title>
+    <link rel="stylesheet" href="options.css">
+  </head>
+  <body>
+    <main class="page">
+      <h1>FAU Mail Agent Settings</h1>
+      <p class="note">
+        Save the credentials Jarvis should use for FAUmail. This stays in local Chrome extension storage on this machine.
+      </p>
+
+      <label for="username">Username</label>
+      <input id="username" type="text" autocomplete="username">
+
+      <label for="password">Password</label>
+      <input id="password" type="password" autocomplete="current-password">
+
+      <div class="actions">
+        <button id="save">Save</button>
+        <button id="clear" class="secondary">Clear</button>
+      </div>
+
+      <div id="status" class="status">No changes yet.</div>
+    </main>
+    <script src="options.js"></script>
+  </body>
+</html>

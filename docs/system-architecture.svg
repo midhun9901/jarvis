@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680" viewBox="0 0 1200 680" role="img" aria-labelledby="title desc">
+  <title id="title">JARVIS system architecture</title>
+  <desc id="desc">Voice input travels through a React interface and WebSocket to a FastAPI orchestration layer. A provider router produces a tool action, which is parsed, checked, and routed to local and connected tools. Memory and background jobs support the conversation loop, which returns structured results and speech.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5c7b8d"/>
+    </marker>
+    <style>
+      text { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .title { fill: #f6fbff; font-size: 30px; font-weight: 700; letter-spacing: -0.5px; }
+      .subtitle { fill: #8fa5b4; font-size: 15px; }
+      .node-title { fill: #ecf5f8; font-size: 17px; font-weight: 700; }
+      .node-copy { fill: #91a8b6; font-size: 13px; }
+      .eyebrow { fill: #62dfca; font-size: 11px; font-weight: 700; letter-spacing: 1.2px; }
+      .tool { fill: #bfd0d9; font-size: 13px; font-weight: 600; }
+      .note { fill: #76909f; font-size: 12px; }
+      .connector { fill: none; stroke: #5c7b8d; stroke-width: 2; marker-end: url(#arrow); }
+      .support { fill: none; stroke: #31505f; stroke-width: 1.5; stroke-dasharray: 6 6; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="680" rx="20" fill="#071721"/>
+  <text class="title" x="42" y="55">From voice request to verified tool action</text>
+  <text class="subtitle" x="42" y="83">Local Windows application · visible execution path · explicit safety boundaries</text>
+
+  <path class="connector" d="M217 214 H273"/>
+  <path class="connector" d="M517 214 H573"/>
+  <path class="connector" d="M817 214 H873"/>
+  <path class="connector" d="M1023 293 V345"/>
+  <path class="connector" d="M873 445 H817"/>
+  <path class="connector" d="M573 445 H517"/>
+  <path class="connector" d="M273 445 H217"/>
+
+  <g>
+    <rect x="42" y="145" width="175" height="138" rx="14" fill="#0d2430" stroke="#214250"/>
+    <text class="eyebrow" x="62" y="173">01 · INPUT</text>
+    <text class="node-title" x="62" y="204">Voice request</text>
+    <text class="node-copy" x="62" y="231">Ctrl+Alt+Space</text>
+    <text class="node-copy" x="62" y="252">Speech capture</text>
+  </g>
+
+  <g>
+    <rect x="273" y="145" width="244" height="138" rx="14" fill="#0d2430" stroke="#214250"/>
+    <text class="eyebrow" x="293" y="173">02 · INTERFACE</text>
+    <text class="node-title" x="293" y="204">React + Vite UI</text>
+    <text class="node-copy" x="293" y="231">Connection and listening state</text>
+    <text class="node-copy" x="293" y="252">Structured result panels</text>
+  </g>
+
+  <g>
+    <rect x="573" y="132" width="244" height="164" rx="14" fill="#10313a" stroke="#2b6e69"/>
+    <text class="eyebrow" x="593" y="160">03 · ORCHESTRATION</text>
+    <text class="node-title" x="593" y="191">FastAPI conversation loop</text>
+    <text class="node-copy" x="593" y="218">WebSocket session</text>
+    <text class="node-copy" x="593" y="239">Provider routing + fallbacks</text>
+    <text class="node-copy" x="593" y="260">Context and response assembly</text>
+  </g>
+
+  <g>
+    <rect x="873" y="145" width="285" height="148" rx="14" fill="#0d2430" stroke="#214250"/>
+    <text class="eyebrow" x="893" y="173">04 · ACTION BOUNDARY</text>
+    <text class="node-title" x="893" y="204">Parse and route</text>
+    <text class="node-copy" x="893" y="231">Inspect the requested action</text>
+    <text class="node-copy" x="893" y="252">Confirm sensitive operations</text>
+    <rect x="1060" y="165" width="72" height="22" rx="11" fill="#153b3e"/>
+    <text class="eyebrow" x="1072" y="180">VISIBLE</text>
+  </g>
+
+  <g>
+    <rect x="873" y="345" width="285" height="200" rx="14" fill="#0d2430" stroke="#214250"/>
+    <text class="eyebrow" x="893" y="375">05 · TOOLS</text>
+    <text class="tool" x="893" y="409">Web + page reading</text>
+    <text class="tool" x="893" y="438">Screen perception</text>
+    <text class="tool" x="893" y="467">Files + Windows actions</text>
+    <text class="tool" x="893" y="496">Gmail + Calendar</text>
+    <text class="tool" x="893" y="525">YouTube + media control</text>
+  </g>
+
+  <g>
+    <rect x="573" y="376" width="244" height="138" rx="14" fill="#10313a" stroke="#2b6e69"/>
+    <text class="eyebrow" x="593" y="404">06 · RESPONSE</text>
+    <text class="node-title" x="593" y="435">Result assembly</text>
+    <text class="node-copy" x="593" y="462">Structured UI payload</text>
+    <text class="node-copy" x="593" y="483">Neural text-to-speech</text>
+  </g>
+
+  <g>
+    <rect x="273" y="376" width="244" height="138" rx="14" fill="#0d2430" stroke="#214250"/>
+    <text class="eyebrow" x="293" y="404">07 · PRESENTATION</text>
+    <text class="node-title" x="293" y="435">React result panels</text>
+    <text class="node-copy" x="293" y="462">Tool output and status</text>
+    <text class="node-copy" x="293" y="483">Spoken response playback</text>
+  </g>
+
+  <g>
+    <rect x="42" y="376" width="175" height="138" rx="14" fill="#0d2430" stroke="#214250"/>
+    <text class="eyebrow" x="62" y="404">08 · USER</text>
+    <text class="node-title" x="62" y="435">Answer delivered</text>
+    <text class="node-copy" x="62" y="462">Visible outcome</text>
+    <text class="node-copy" x="62" y="483">Audible feedback</text>
+  </g>
+
+  <path class="support" d="M695 296 V340 H450 V567"/>
+  <path class="support" d="M695 296 V340 H745 V567"/>
+
+  <g>
+    <rect x="330" y="567" width="240" height="74" rx="12" fill="#0a202a" stroke="#1c3b48"/>
+    <text class="eyebrow" x="350" y="593">PERSISTENT CONTEXT</text>
+    <text class="node-title" x="350" y="619">Local memory store</text>
+  </g>
+
+  <g>
+    <rect x="625" y="567" width="240" height="74" rx="12" fill="#0a202a" stroke="#1c3b48"/>
+    <text class="eyebrow" x="645" y="593">BACKGROUND</text>
+    <text class="node-title" x="645" y="619">Scheduled jobs</text>
+  </g>
+
+  <text class="note" x="42" y="659">Gmail replies are staged as drafts and require spoken confirmation. Screen captures are not persisted.</text>
+</svg>

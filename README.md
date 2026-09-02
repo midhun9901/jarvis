@@ -24,21 +24,16 @@ several components with different latency, state, and safety requirements:
 It is a personal Windows system that I actively use, not a hosted multi-user
 service.
 
-## System loop
+## System architecture
 
-```text
-voice input
-    ↓
-React interface ── WebSocket ── FastAPI backend
-                                      ↓
-                                model router
-                                      ↓
-                             parsed tool action
-                                      ↓
-          web · screen · files · OS · Gmail · Calendar · YouTube
-                                      ↓
-                         structured UI + spoken response
-```
+![JARVIS system architecture from voice input to verified tool execution](docs/system-architecture.svg)
+
+The request path stays visible from capture through execution. Persistent
+memory and scheduled jobs support the conversation loop without bypassing the
+action and confirmation boundaries.
+
+**Core stack:** Python · FastAPI · WebSockets · React 18 · Vite · Edge TTS ·
+Chrome DevTools Protocol · Gmail/Calendar APIs.
 
 ## Selected engineering decisions
 
@@ -80,25 +75,6 @@ current request and are not stored.
 | Vision | On-demand description of the current screen |
 | Memory | Facts, preferences, conversation history, and scheduled consolidation |
 | Proactivity | Calendar and important-mail notifications with quiet hours and cooldowns |
-
-## Architecture
-
-```text
-                 React + Vite voice UI
-         Web Speech capture · orb · result panels
-                          │
-                       WebSocket
-                          │
-             FastAPI backend (backend/server.py)
-                          │
-       ┌──────────┬───────┼──────────┬───────────────┐
-       ▼          ▼       ▼          ▼               ▼
-  model router  actions  Google   memory store   background jobs
-  + fallbacks   + tools  OAuth2   + history      + notifications
-```
-
-**Core stack:** Python · FastAPI · WebSockets · React 18 · Vite · Edge TTS ·
-Chrome DevTools Protocol · Gmail/Calendar APIs.
 
 ## Repository guide
 

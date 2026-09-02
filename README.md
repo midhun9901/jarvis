@@ -1,69 +1,162 @@
-# JARVIS — a local voice AI assistant
+# JARVIS — Local Voice Assistant for Windows
 
-An always-on, voice-driven AI assistant that runs on my own machine. Talk to it, and it searches the web, reads and drafts email, manages my calendar, controls the browser and OS, looks at my screen, remembers what matters across sessions, and even studies its own past mistakes to get better. Python backend, React voice UI, pluggable LLM "brains."
+A daily-use voice system I built to connect conversational models with tools on
+my own computer. It combines streaming voice interaction, screen perception,
+web and OS actions, Gmail and Calendar integrations, and persistent memory in a
+single local application.
 
-> Wake with `Ctrl+Alt+Space` → speak → it acts. British neural voice, an animated orb, and it switches to Malayalam when I ask about anything Kerala-related.
+Press `Ctrl+Alt+Space`, speak, and the system can answer, show structured results
+in the React interface, or execute an allowed action through the Python backend.
 
----
+## What this project demonstrates
 
-## Why it's interesting
+JARVIS is more than a chat interface. The engineering work is in coordinating
+several components with different latency, state, and safety requirements:
 
-Most "assistant" projects wrap a chat model. This one is a small **agent system** with a few parts I'm proud of:
+- a WebSocket conversation loop between a React/Vite client and FastAPI;
+- speech capture, transcription, model routing, tool execution, and neural TTS;
+- a small, inspectable action protocol for browser, file, search, vision, email,
+  calendar, media, and OS tools;
+- persistent conversation and preference memory;
+- scheduled memory-consolidation, self-review, and proactive-notification jobs;
+- provider switching and fallbacks when a model is unavailable or rate-limited.
 
-- **🧠 Persistent memory with a background agent.** A memory-consolidator runs on a schedule, reads older conversations, and in three stages — *Extractor → Judge → Writer* — pulls out durable facts/preferences while rejecting junk and anything private, then saves them for future prompts.
-- **🔁 Self-improvement agent.** It reviews past conversations for repeated failure patterns (hallucination, wrong tool, mishears, verbosity…), writes itself tiny behavioural "lessons," and injects the most relevant one into future prompts. It recommends code fixes but never applies them silently.
-- **📣 Proactive agent.** Volunteers timely nudges without being asked — an upcoming calendar event, a newly-arrived important email — while respecting quiet hours and staying silent mid-conversation.
-- **👁 Screen vision.** "What's on my screen?" captures the monitor and answers through a vision model. Screenshots are used for that one request and never stored.
-- **🔌 Pluggable brains, switchable by voice.** "Switch to DeepSeek", "use the Pro model" — DeepSeek / Groq / Gemini / OpenAI / OpenRouter behind one interface, with a fallback chain when a provider is rate-limited.
+It is a personal Windows system that I actively use, not a hosted multi-user
+service.
 
-## What it can do
+## System loop
 
-| Area | Capability |
-|------|------------|
-| **Voice I/O** | Always-on listening, neural TTS, global wake hotkey, auto-sleep, English + Malayalam |
-| **Web** | DuckDuckGo search, fetch & read pages, open URLs |
-| **Google** | Gmail read/search/**draft** (with a spoken confirmation gate) + Calendar read/add, via OAuth2 |
-| **Browser/OS** | YouTube search & playback control via Chrome DevTools Protocol, launch apps, shell commands, volume/media/lock |
-| **Files** | Read / write / search the filesystem by voice |
-| **Vision** | Describe the current screen on request |
-| **Memory** | Remember facts, recall them, search past conversations |
+```text
+voice input
+    ↓
+React interface ── WebSocket ── FastAPI backend
+                                      ↓
+                                model router
+                                      ↓
+                             parsed tool action
+                                      ↓
+          web · screen · files · OS · Gmail · Calendar · YouTube
+                                      ↓
+                         structured UI + spoken response
+```
 
-Tools are exposed to the model through a lightweight `<<ACTION: …>>` tag protocol that the backend parses and executes.
+## Selected engineering decisions
+
+### Inspectable tool protocol
+
+Tools are exposed through a compact `<<ACTION: …>>` protocol. The backend parses
+the requested action, routes it to a specific implementation, and returns the
+result to the conversation loop. The format is intentionally simple enough to
+inspect while debugging a failed action.
+
+### Local-first state
+
+Conversation history, learned preferences, and runtime state remain on the
+machine. A scheduled three-stage memory process—Extractor, Judge, Writer—turns
+older conversations into a smaller set of durable facts while rejecting noisy
+or private candidates.
+
+### Bounded self-review
+
+A background process reviews repeated failure patterns and stores short lessons
+for later prompts. It can recommend a code change, but it does not silently
+modify the application.
+
+### Confirmation at sensitive boundaries
+
+Gmail integration can read and search mail, but replies are staged as drafts and
+pass through a spoken confirmation gate. Screen captures are used for the
+current request and are not stored.
+
+## Capabilities
+
+| Area | Implemented capability |
+|---|---|
+| Voice | Always-on listening, global wake shortcut, neural TTS, English and Malayalam responses |
+| Web | DuckDuckGo search, page reading, and URL opening |
+| Google | Gmail read/search/draft and Calendar read/add through OAuth2 |
+| Browser and media | YouTube search/playback and controls through Chrome DevTools Protocol |
+| Windows | App launching, media controls, volume, lock, and configured shell/file actions |
+| Vision | On-demand description of the current screen |
+| Memory | Facts, preferences, conversation history, and scheduled consolidation |
+| Proactivity | Calendar and important-mail notifications with quiet hours and cooldowns |
 
 ## Architecture
 
-```
-                 ┌──────────────── React + Vite voice UI (orb, panels) ───────────────┐
-   mic audio ──▶ │  Web Speech capture  ──ws──▶                          ◀──ws── audio │
-                 └───────────────────────────────┬───────────────────────────────────┘
-                                                 ▼
-                            FastAPI backend  (backend/server.py)
-                                                 │
-        ┌───────────────┬────────────────────────┼───────────────┬───────────────────┐
-        ▼               ▼                         ▼               ▼                   ▼
-   LLM router      <<ACTION>>              Gmail / Calendar   memory +           background agents
- (DeepSeek/Groq/   tool executor           (OAuth2)          conversation      (consolidator,
-  Gemini/…)        (search, browse,                          store             self-improvement,
-                    files, YouTube CDP,                                         proactive)
-                    vision, OS control)
+```text
+                 React + Vite voice UI
+         Web Speech capture · orb · result panels
+                          │
+                       WebSocket
+                          │
+             FastAPI backend (backend/server.py)
+                          │
+       ┌──────────┬───────┼──────────┬───────────────┐
+       ▼          ▼       ▼          ▼               ▼
+  model router  actions  Google   memory store   background jobs
+  + fallbacks   + tools  OAuth2   + history      + notifications
 ```
 
-**Stack:** Python · FastAPI + WebSockets · React 18 + Vite · Groq Whisper (STT) · Edge TTS · Chrome DevTools Protocol · Google Gmail/Calendar APIs.
+**Core stack:** Python · FastAPI · WebSockets · React 18 · Vite · Edge TTS ·
+Chrome DevTools Protocol · Gmail/Calendar APIs.
 
-## Running it
+## Repository guide
 
-You supply your own API keys and Google OAuth app; there are **no secrets in this repo**.
+| Path | Responsibility |
+|---|---|
+| [`backend/server.py`](backend/server.py) | FastAPI app, WebSocket loop, model routing, action parsing, and tool execution |
+| [`backend/core/`](backend/core/) | Voice normalization, memory consolidation, verification, and self-review |
+| [`backend/plugins/`](backend/plugins/) | Gmail and Calendar integrations |
+| [`backend/tools/`](backend/tools/) | Focused tool implementations such as mail triage |
+| [`frontend/src/`](frontend/src/) | Voice interface, animated orb, connection state, and result panels |
+| [`extensions/chrome/fau-mail-agent/`](extensions/chrome/fau-mail-agent/) | Browser extension for FAU mail workflows |
+| [`config/.env.example`](config/.env.example) | Non-secret configuration template |
+| [`docs/PROJECT_OVERVIEW.md`](docs/PROJECT_OVERVIEW.md) | Detailed feature and configuration reference |
 
-```bash
-# 1. copy the template and fill in your keys
-cp config/.env.example config/.env
-# 2. add your Google OAuth files to config/  (credentials.json, token.json)
-# 3. launch backend + frontend + hotkey listener
-./start_jarvis.bat
+## Run it on Windows
+
+Prerequisites: Python 3, Node.js/npm, and your own model-provider credentials.
+Google OAuth credentials are only required for Gmail and Calendar features.
+
+```bat
+git clone https://github.com/midhun9901/jarvis.git
+cd jarvis
+setup.bat
 ```
 
-Full configuration reference (LLM providers, TTS, memory/self-improvement/proactivity tuning) is in [`docs/PROJECT_OVERVIEW.md`](docs/PROJECT_OVERVIEW.md).
+The setup script creates the Python environment, installs backend and frontend
+dependencies, copies `config/.env.example` to `config/.env`, and opens the local
+configuration file. After adding the providers you intend to use:
 
-## Notes
+```bat
+start_jarvis.bat
+```
 
-A personal project I built and use daily on Windows. The design goal was a genuinely *useful* assistant — memory, agency, and real integrations — not a demo. It's deliberately hackable: one readable backend, a small tool protocol, and config-driven behaviour.
+The launcher starts the backend on port 8000, the Vite interface on port 5173,
+and the global hotkey listener, then opens the interface as a standalone browser
+window.
+
+## Security and privacy boundaries
+
+- API keys and OAuth credentials are loaded from ignored local files; no secrets
+  are stored in this repository.
+- Gmail replies are drafted before confirmation rather than sent immediately.
+- Screen images are handled for the active request and are not persisted.
+- Background self-review can write prompt lessons, not arbitrary code changes.
+- This is a trusted, single-user local tool. Shell and filesystem actions should
+  not be exposed to an untrusted network or shared deployment.
+
+## Current limitations
+
+- Windows-specific launcher, global hotkey, and OS integrations.
+- Browser media control depends on a local Chromium debugging connection.
+- Cloud model, speech, search, and Google integrations still depend on their
+  respective services and quotas.
+- The backend remains intentionally direct and readable, but several concerns
+  still meet in one large server module and would benefit from further isolation.
+
+## Status
+
+Active personal project. The design goal is practical daily utility: fast voice
+interaction, visible tool behavior, persistent context, and explicit boundaries
+around sensitive actions.
